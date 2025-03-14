@@ -163,26 +163,20 @@ app.get('/cities', async (req, res) => {
   }
 });
 
-app.post('/chat', async (req, res) => {
+app.post("/chat", async (req, res) => {
+    if (!req.body.message) {
+        return res.status(400).json({ error: "Message is required" });
+    }
+
     try {
-        console.log("Received Chat Message:", req.body); // Debugging
-        const { message, sender } = req.body;
-
-        // Validate message input
-        if (!message || !sender) {
-            return res.status(400).json({ error: "Message and sender are required" });
-        }
-
-        // Store message in database
-        const newChat = new Chat({ message, sender });
-        await newChat.save();
-
-        res.status(201).json({ message: "Chat saved successfully" });
+        const newMessage = new Chat({ message: req.body.message });
+        await newMessage.save();
+        res.json({ message: "Chat saved successfully" });
     } catch (error) {
-        console.error("❌ Chat API Error:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ error: "Failed to save chat" });
     }
 });
+
 
 app.post("/test", async (req, res) => {
     console.log(req.body); // ✅ Access `req.body` normally
