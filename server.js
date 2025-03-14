@@ -317,3 +317,6 @@ app.get('/api', (req, res) => {
     res.json({ message: "API is working" });
 });
 
+setInterval(() => {
+    console.log("✅ Keeping the server alive...");
+}, 1000 * 60 * 5); // Runs every 5 minutes
