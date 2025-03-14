@@ -22,7 +22,8 @@ const app = express();
 
 // API route to send API key to frontend
 app.get("/api/getApiKey", (req, res) => {
-    res.json({ apiKey: process.env.WEATHER_API_KEY || "YOUR_DEFAULT_API_KEY" });
+   res.json({ apiKey: process.env.OPENWEATHER_API_KEY || "" });
+
 });
 
 
