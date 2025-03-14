@@ -202,26 +202,22 @@ function updateWeatherUI(data) {
 
 // Fetch weather data from API
 async function fetchWeatherData(city) {
+    if (!WEATHER_API_KEY) {
+        console.error("❌ ERROR: API Key is missing. Cannot fetch weather data.");
+        return null;
+    }
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric`;
+
     try {
-        const API_KEY = "2149cbc5da7384b8ef7bcccf62b0bf68"
-
-const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
-
-
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`API Error ${response.status}: ${response.statusText}`);
         
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
-
         const data = await response.json();
-        if (!data || !data.main) {
-            throw new Error("Invalid weather data");
-        }
-
         return data;
     } catch (error) {
-        console.error("❌ Weather API error:", error);
-        return null; // Prevents app from crashing
+        console.error("❌ Weather API Error:", error.message);
+        return null;
     }
 }
 
