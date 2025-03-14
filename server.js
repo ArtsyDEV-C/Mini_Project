@@ -313,3 +313,7 @@ const saveCity = async (city) => {
     }
 };
 
+app.get('/api', (req, res) => {
+    res.json({ message: "API is working" });
+});
+
