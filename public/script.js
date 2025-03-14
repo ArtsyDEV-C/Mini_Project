@@ -197,18 +197,20 @@ function updateWeatherUI(data) {
     `;
 
     // Provide recommendations based on weather
-    provideRecommendations(weather);
-}
+   async function fetchWeatherAlerts(city) {
+    console.warn("⚠️ Skipping OpenWeather Alerts (Requires Paid Plan)");
 
-// Fetch weather data from API
-async function fetchWeatherData(city) {
-    if (!WEATHER_API_KEY) {
-        console.error("❌ ERROR: API Key is missing. Cannot fetch weather data.");
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${WEATHER_API_KEY}&units=metric`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No forecast data available");
+        return await response.json();
+    } catch (error) {
+        console.warn("⚠️ No forecast data found for", city);
         return null;
     }
-
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric`;
-
+}
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`API Error ${response.status}: ${response.statusText}`);
