@@ -91,8 +91,16 @@ const registerForm = document.querySelector('#register-form');
 const loginForm = document.querySelector('#login-form');
 const saveCityForm = document.querySelector('#save-city-form');
 
-require('dotenv').config();
-const API_KEY = process.env.WEATHER_API_KEY || 'YOUR_DEFAULT_API_KEY';
+// Fetch API key from backend
+let API_KEY = "";
+
+fetch("/api/getApiKey")
+    .then(response => response.json())
+    .then(data => {
+        API_KEY = data.apiKey;
+    })
+    .catch(error => console.error("❌ Error fetching API key:", error));
+
 
 if (!API_KEY || API_KEY === 'YOUR_DEFAULT_API_KEY') {
     console.error("❌ ERROR: API key is missing. Set WEATHER_API_KEY in .env.");
