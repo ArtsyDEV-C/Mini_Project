@@ -91,8 +91,13 @@ const registerForm = document.querySelector('#register-form');
 const loginForm = document.querySelector('#login-form');
 const saveCityForm = document.querySelector('#save-city-form');
 
-// API key for weather data (get your own from https://openweathermap.org/api)
-const API_KEY = '2149cbc5da7384b8ef7bcccf62b0bf68';
+require('dotenv').config();
+const API_KEY = process.env.WEATHER_API_KEY || 'YOUR_DEFAULT_API_KEY';
+
+if (!API_KEY || API_KEY === 'YOUR_DEFAULT_API_KEY') {
+    console.error("❌ ERROR: API key is missing. Set WEATHER_API_KEY in .env.");
+}
+
 
 // Function to get the current date and time
 function updateDateTime() {
