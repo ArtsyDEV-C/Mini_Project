@@ -62,7 +62,17 @@ app.get('/api/weather', async (req, res) => {
         }
 
         const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
-        const response = await axios.get(url);  // ✅ Now correctly inside async function
+      
+        app.get('/api/weather', async (req, res) => {  // ✅ Now inside an async function
+    try {
+        const response = await axios.get(url);
+        res.json(response.data);
+    } catch (error) {
+        console.error("❌ Weather API Error:", error);
+        res.status(500).json({ error: "Failed to fetch weather data" });
+    }
+});
+
 
         res.json(response.data);
     } catch (error) {
