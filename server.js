@@ -1,13 +1,17 @@
-require('dotenv').config();
+import express from 'express';
+import connectDB from './db.js';
+import passport from './config/passport.js';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import User from './models/User.js';
+import dotenv from 'dotenv';
 
-const express = require('express');
-const mongoose = require('./db');
-const passport = require('./config/passport');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const User = require('./models/User');
+dotenv.config();
 
 const app = express();
+
+// ✅ Connect to Database
+connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,7 +31,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Fix all Async/Await Issues
 app.post('/register', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -43,9 +46,13 @@ app.post('/login', passport.authenticate('local'), (req, res) => {
     res.json({ message: "✅ Login successful!" });
 });
 
-// ✅ Ensure Server Works
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+// Keep the server alive
+setInterval(() => {
+    console.log("✅ Keeping the server alive...");
+}, 1000 * 60 * 5); // Runs every 5 minutes
 
 const Twilio = require('twilio');
 const City = require('./models/City');  // Import Chat model
@@ -402,7 +409,3 @@ const saveCity = async (city) => {
 app.get('/api', (req, res) => {
     res.json({ message: "API is working" });
 });
-
-setInterval(() => {
-    console.log("✅ Keeping the server alive...");
-}, 1000 * 60 * 5); // Runs every 5 minutes
