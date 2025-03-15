@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   
       const data = await response.json();
-      const botReply = data.response;
+      const botReply = data.response || "I'm not sure how to respond.";
   
       // Display chatbot response
       chatbox.innerHTML += `<div class="message bot">${botReply}</div>`;
@@ -30,4 +30,5 @@ document.addEventListener("DOMContentLoaded", function () {
       input.value = "";
     });
   });
+  
   
