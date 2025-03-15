@@ -1,21 +1,22 @@
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const mongoURI = process.env.MONGO_URI || 'mongodb+srv://username:password@cluster.mongodb.net/mydatabase';
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mydatabase';
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('✅ MongoDB connected successfully');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1);
-  }
-};
+async function connectDB() {
+    try {
+        await mongoose.connect(mongoURI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log("✅ Database connected successfully");
+    } catch (error) {
+        console.error("❌ Database connection error:", error);
+        process.exit(1); // Stop the process if database fails
+    }
+}
 
-module.exports = connectDB;
+export default connectDB;
+
