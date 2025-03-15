@@ -184,19 +184,14 @@ app.get('/cities', async (req, res) => {
 });
 
 app.post("/chat", async (req, res) => {
-    if (!req.body.message) {
-        return res.status(400).json({ error: "Message is required" });
-    }
+  console.log("Received message:", req.body.message);
 
-    try {
-        const newMessage = new Chat({ message: req.body.message });
-        await newMessage.save();
-        res.json({ message: "Chat saved successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to save chat" });
-    }
+  if (!req.body.message) {
+    return res.json({ response: "I didn't understand that." });
+  }
+
+  res.json({ response: `You said: ${req.body.message}` });
 });
-
 
 app.post("/test", async (req, res) => {
     console.log(req.body); // ✅ Access `req.body` normally
