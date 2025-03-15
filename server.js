@@ -45,8 +45,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 
 app.post('/login', passport.authenticate('local'), (req, res) => {
@@ -192,7 +191,7 @@ app.use((err, req, res, next) => {
 // Handle "EADDRINUSE" error
 server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-        console.error(`❌ Port ${PORT} is already in use. Trying a different port...`);
+        console.error(`❌ PORT ${PORT} is already in use. Trying a different port...`);
         setTimeout(() => {
             server.listen(0, () => { // 0 means pick a random available port
                 console.log(`🚀 Server restarted on available port: ${server.address().port}`);
