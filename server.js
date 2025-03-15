@@ -192,6 +192,15 @@ app.get('/cities', async (req, res) => {
 
 const OpenAI = require("openai");
 
+if (!process.env.OPENAI_API_KEY || !process.env.OPENAI_API_KEY.startsWith("sk-")) {
+  console.error("❌ ERROR: Invalid OpenAI API key! Check your .env file.");
+  process.exit(1); // Stop server if API key is invalid
+}
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY.trim(), // Ensure no extra spaces
+});
+
 app.use(express.json());
 app.use(cors());
 
@@ -199,10 +208,6 @@ app.use(cors());
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Ensure your .env file has this key
-});
 
 app.post("/chat", async (req, res) => {  // ✅ Ensure function is async
   try {
