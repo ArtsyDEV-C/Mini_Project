@@ -85,8 +85,25 @@ app.get('/api/weather', async (req, res) => {
 
 
 const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+});
+
+// ✅ Handle "EADDRINUSE" error to prevent crashes
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use. Trying a different port...`);
+        setTimeout(() => {
+            server.listen(0, () => { // 0 means pick a random available port
+                console.log(`🚀 Server restarted on available port: ${server.address().port}`);
+            });
+        }, 1000);
+    } else {
+        console.error('❌ Server error:', err);
+    }
+});
+
 });
 
 // Keep the server alive
