@@ -145,45 +145,25 @@ app.post('/cities', async (req, res) => {
         res.status(500).json({ error: "Error saving city" });
     }
 });
-
 app.get('/api/weather', async (req, res) => {
-    const city = req.query.city;
-    if (!city) return res.status(400).json({ error: "City is required" });
-
     try {
-       if (!process.env.OPENWEATHER_API_KEY) {
-    return res.status(500).json({ error: "API key is missing. Set OPENWEATHER_API_KEY in .env" });
-}
+        const city = req.query.city;
+        if (!city) return res.status(400).json({ error: "City is required" });
 
-const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
+        if (!process.env.OPENWEATHER_API_KEY) {
+            return res.status(500).json({ error: "API key is missing" });
+        }
 
-try {
-    const response = await axios.get(url);
-    res.json(response.data);
-} catch (error) {
-    console.error("❌ Weather API Error:", error);
-    res.status(500).json({ error: "Failed to fetch weather data" });
-}
-    } catch (error) {
-        console.error("❌ Weather API Error:", error);
-        res.status(500).json({ error: "Failed to fetch weather data" });
-    }
-});
-const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
+        const response = await axios.get(url);  // ✅ Now correctly inside async function
 
-try {
-    const response = await axios.get(url);
-    res.json(response.data);
-} catch (error) {
-    console.error("❌ Weather API Error:", error);
-    res.status(500).json({ error: "Failed to fetch weather data" });
-}
         res.json(response.data);
     } catch (error) {
         console.error("❌ Weather API Error:", error);
         res.status(500).json({ error: "Failed to fetch weather data" });
     }
 });
+
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
