@@ -148,15 +148,28 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// Secure Route: Save City (Only if logged in)
 app.post('/cities', async (req, res) => {
     try {
-        if (!req.isAuthenticated()) return res.status(401).json({ error: "You must be logged in" });
+        if (!req.isAuthenticated() || !req.user) {
+            return res.status(401).json({ error: "You must be logged in" });
+        }
+
         const { city } = req.body;
+        if (!city) return res.status(400).json({ error: "City name required" });
+
+        // Check if city already exists for the user
+        const existingCity = await City.findOne({ name: city, userId: req.user.id });
+        if (existingCity) {
+            return res.status(400).json({ error: "City already saved" });
+        }
+
+        // Save city if it doesn't exist
         const newCity = new City({ name: city, userId: req.user.id });
         await newCity.save();
-        res.status(201).json({ message: 'City saved', city: newCity });
+        res.status(201).json({ message: "City saved", city: newCity });
     } catch (error) {
-        console.error('Error saving city:', error);
+        console.error("Error saving city:", error);
         res.status(500).json({ error: "Error saving city" });
     }
 });
@@ -222,14 +235,19 @@ app.post('/cities', async (req, res) => {
     }
 });
 
+// Secure Route: Fetch User's Saved Cities
 app.get('/cities', async (req, res) => {
-  try {
-    const cities = await City.find();
-    res.json(cities);
-  } catch (err) {
-    console.error("Error fetching cities:", err);
-    res.status(500).json({ error: "Server error while fetching cities." });
-  }
+    try {
+        if (!req.isAuthenticated() || !req.user) {
+            return res.status(401).json({ error: "Not authenticated" });
+        }
+
+        const cities = await City.find({ userId: req.user.id });
+        res.json(cities);
+    } catch (err) {
+        console.error("Error fetching cities:", err);
+        res.status(500).json({ error: "Server error while fetching cities" });
+    }
 });
 
 const OpenAI = require("openai");
