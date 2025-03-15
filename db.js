@@ -1,4 +1,6 @@
-const mongoose = require('mongoose');
+const connectDB = require('./db'); // ✅ Import connectDB function
+connectDB();  // ✅ Ensure connection happens only once
+
 const dotenv = require('dotenv');
 
 dotenv.config(); // Load environment variables
