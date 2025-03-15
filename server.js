@@ -183,15 +183,54 @@ app.get('/cities', async (req, res) => {
   }
 });
 
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const Chat = require("./models/Chat"); // Import Chat model
+const cors = require("cors");
+const { Configuration, OpenAIApi } = require("openai");
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// Connect MongoDB
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
+// OpenAI API configuration
+const openai = new OpenAIApi(new Configuration({
+  apiKey: process.env.OPENAI_API_KEY
+}));
+
 app.post("/chat", async (req, res) => {
-  console.log("Received message:", req.body.message);
+  try {
+    const userMessage = req.body.message;
+    if (!userMessage) return res.json({ response: "Please type something." });
 
-  if (!req.body.message) {
-    return res.json({ response: "I didn't understand that." });
+    // Generate AI response
+    const aiResponse = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: userMessage }]
+    });
+
+    const botMessage = aiResponse.data.choices[0].message.content.trim();
+
+    // Save chat in MongoDB
+    const chat = new Chat({ userMessage, botMessage });
+    await chat.save();
+
+    res.json({ response: botMessage });
+  } catch (error) {
+    console.error("AI Error:", error);
+    res.json({ response: "I'm having trouble thinking right now." });
   }
-
-  res.json({ response: `You said: ${req.body.message}` });
 });
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
+
 
 app.post("/test", async (req, res) => {
     console.log(req.body); // ✅ Access `req.body` normally
