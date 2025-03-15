@@ -210,10 +210,28 @@ app.post("/chat", async (req, res) => {
     if (!userMessage) return res.json({ response: "Please type something." });
 
     // Generate AI response
-    const aiResponse = await openai.createChatCompletion({
+    const aiResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: userMessage }]
     });
+
+    if (!aiResponse || !aiResponse.choices) {
+        throw new Error("Invalid AI response");
+    }
+
+    const botMessage = aiResponse.choices[0].message.content.trim();
+    res.json({ response: botMessage });
+
+  } catch (error) {
+    console.error("AI Error:", error);
+    res.status(500).json({ response: "I'm having trouble thinking right now. Try again later." });
+  }
+});
+
+
+if (!aiResponse || !aiResponse.choices) {
+   
+
 
     const botMessage = aiResponse.data.choices[0].message.content.trim();
 
