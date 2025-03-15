@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const app = express();
 const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
@@ -186,7 +187,7 @@ app.get('/cities', async (req, res) => {
 
 const { Configuration, OpenAIApi } = require("openai");
 
-const app = express();
+
 app.use(express.json());
 app.use(cors());
 
