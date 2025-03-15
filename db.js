@@ -1,22 +1,22 @@
 const mongoose = require('mongoose');
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
-dotenv.config();
-
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mydatabase';
+dotenv.config(); // Load environment variables
 
 async function connectDB() {
     try {
-        await mongoose.connect(mongoURI, {
+        if (!process.env.MONGO_URI) {
+            throw new Error("❌ MONGO_URI is missing in .env");
+        }
+        await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        console.log("✅ Database connected successfully");
+        console.log("✅ MongoDB connected successfully");
     } catch (error) {
-        console.error("❌ Database connection error:", error);
-        process.exit(1); // Stop the process if database fails
+        console.error("❌ MongoDB connection error:", error);
+        process.exit(1);
     }
 }
 
-export default connectDB;
-
+module.exports = connectDB;
