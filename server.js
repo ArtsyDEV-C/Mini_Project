@@ -187,9 +187,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: "Something went wrong" });
 });
 
-const server = app.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-});
+
 
 // Handle "EADDRINUSE" error
 server.on('error', (err) => {
