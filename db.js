@@ -1,6 +1,4 @@
-const connectDB = require('./db'); // ✅ Import connectDB function
-connectDB();  // ✅ Ensure connection happens only once
-
+const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 dotenv.config(); // Load environment variables
@@ -8,11 +6,6 @@ dotenv.config(); // Load environment variables
 let isConnected = false; // Track the connection status
 
 async function connectDB() {
-    if (isConnected) {
-        console.log("✅ MongoDB is already connected");
-        return;
-    }
-
     try {
         if (!process.env.MONGO_URI) {
             throw new Error("❌ MONGO_URI is missing in .env");
