@@ -204,7 +204,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // Ensure your .env file has this key
 });
 
-app.post("/chat", async (req, res) => {
+app.post("/chat", async (req, res) => {  // ✅ Make the function async
   try {
     const userMessage = req.body.message;
     if (!userMessage) return res.json({ response: "Please type something." });
@@ -220,13 +220,19 @@ app.post("/chat", async (req, res) => {
     }
 
     const botMessage = aiResponse.choices[0].message.content.trim();
+
+    // ✅ Ensure the function is async before using await
+    const chat = new Chat({ userMessage, botMessage });
+    await chat.save();  // ✅ Now this works inside an async function
+
     res.json({ response: botMessage });
 
   } catch (error) {
     console.error("AI Error:", error);
-    res.status(500).json({ response: "I'm having trouble thinking right now. Try again later." });
+    res.json({ response: "I'm having trouble thinking right now. Try again later." });
   }
 });
+
 
 
 if (!aiResponse || !aiResponse.choices) {
