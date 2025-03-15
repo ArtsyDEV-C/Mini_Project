@@ -183,11 +183,7 @@ app.get('/cities', async (req, res) => {
   }
 });
 
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const Chat = require("./models/Chat"); // Import Chat model
-const cors = require("cors");
+
 const { Configuration, OpenAIApi } = require("openai");
 
 const app = express();
