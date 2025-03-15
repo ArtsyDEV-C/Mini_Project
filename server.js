@@ -16,17 +16,17 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Session Setup (Important for Railway)
 app.use(session({
     secret: process.env.SESSION_SECRET || 'super-secret-key',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URI,
+        mongoUrl: process.env.MONGO_URI, // ✅ Uses the correct connection string
         collectionName: 'sessions'
     }),
-    cookie: { secure: false } // Set to `true` if using HTTPS
+    cookie: { secure: false } // Set to true if using HTTPS
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session());
