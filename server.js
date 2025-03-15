@@ -14,6 +14,7 @@ const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
 const MongoStore = require('connect-mongo');
+const Chat = require("./models/Chat");
 
 const port = process.env.PORT || Math.floor(Math.random() * (50000 - 3000) + 3000);
 
