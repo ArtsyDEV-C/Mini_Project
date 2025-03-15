@@ -44,17 +44,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Session Setup
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'super-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URI,
-        collectionName: 'sessions'
-    }),
-    cookie: { secure: false }
-}));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -97,7 +86,6 @@ setInterval(() => {
 }, 1000 * 60 * 5); // Runs every 5 minutes
 
 
-const port = process.env.PORT || Math.floor(Math.random() * (50000 - 3000) + 3000);
 
 // API route to send API key to frontend
 app.get("/api/getApiKey", (req, res) => {
@@ -114,7 +102,7 @@ console.log("🔍 Checking MONGO_URI:", process.env.MONGO_URI);
 const mongoURI = process.env.MONGO_URI;
 if (!mongoURI) {
     console.warn("⚠️ Warning: MONGO_URI is missing. Using local fallback.");
-
+}
 // Middleware
 app.use(express.json({ limit: "10mb" })); // Increase limit if needed
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -210,9 +198,7 @@ server.on('error', (err) => {
         setTimeout(() => {
             server.listen(0, () => { // 0 means pick a random available port
                 console.log(`🚀 Server restarted on available port: ${server.address().port}`);
-            });
-        }, 1000);
-    } else {
+      {
         console.error('❌ Server error:', err);
     }
 });
@@ -260,10 +246,7 @@ const openai = new OpenAI({
 app.use(express.json());
 app.use(cors());
 
-// Connect MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
 
 app.post("/chat", async (req, res) => {  // ✅ Ensure function is async
   try {
