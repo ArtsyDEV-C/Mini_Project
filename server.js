@@ -1,10 +1,10 @@
-import express from 'express';
-import connectDB from './db.js';
-import passport from './config/passport.js';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import User from './models/User.js';
-import dotenv from 'dotenv';
+const express = require('express');
+const connectDB = require('./db');
+const passport = require('./config/passport');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const User = require('./models/User');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
@@ -38,6 +38,7 @@ app.post('/register', async (req, res) => {
         await newUser.save();
         res.status(201).json({ message: "✅ User registered!" });
     } catch (error) {
+        console.error("❌ Registration error:", error);
         res.status(500).json({ error: error.message });
     }
 });
