@@ -7,8 +7,7 @@ const session = require('express-session');
 const passport = require('passport');
 const Twilio = require('twilio');
 const User = require('./models/User');
-const City = require('./models/City');
-const Chat = require('./models/Chat');  // Import Chat model
+const City = require('./models/City');  // Import Chat model
 const methodOverride = require('method-override');
 const axios = require('axios');
 const cors = require('cors');
@@ -18,30 +17,25 @@ const MongoStore = require('connect-mongo');
 
 const port = process.env.PORT || Math.floor(Math.random() * (50000 - 3000) + 3000);
 
-
-
-
 // API route to send API key to frontend
 app.get("/api/getApiKey", (req, res) => {
    res.json({ apiKey: process.env.OPENWEATHER_API_KEY || "" });
 
 });
 
-
-
 // Twilio configuration
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Debugging: Print MONGO_URI to logs
-console.log("\ud83d\udd0d Checking MONGO_URI:", process.env.MONGO_URI);
+console.log("🔍 Checking MONGO_URI:", process.env.MONGO_URI);
 
 const mongoURI = process.env.MONGO_URI;
 if (!mongoURI) {
-    console.warn("\u26a0\ufe0f Warning: MONGO_URI is missing. Using local fallback.");
+    console.warn("⚠️ Warning: MONGO_URI is missing. Using local fallback.");
 } else {
     mongoose.connect(mongoURI)
-        .then(() => console.log("\u2705 MongoDB connected successfully"))
-        .catch(err => console.error("\u274c MongoDB connection error:", err));
+        .then(() => console.log("✅ MongoDB connected successfully"))
+        .catch(err => console.error("❌ MongoDB connection error:", err));
 }
 
 // Middleware
@@ -105,7 +99,6 @@ app.post("/login", async (req, res) => {
     }
 });
 
-
 app.post('/cities', async (req, res) => {
     try {
         if (!req.isAuthenticated()) return res.status(401).json({ error: "You must be logged in" });
@@ -144,16 +137,30 @@ try {
     }
 });
 
-
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
-    console.error("\ud83d\udea8 Uncaught Error:", err);
+    console.error("🚨 Uncaught Error:", err);
     res.status(500).json({ error: "Something went wrong" });
 });
 
-app.listen(port, () => {
-    console.log(`\ud83d\ude80 Server running on port ${port}`);
+const server = app.listen(port, () => {
+    console.log(`🚀 Server running on port ${port}`);
 });
+
+// Handle "EADDRINUSE" error
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${port} is already in use. Trying a different port...`);
+        setTimeout(() => {
+            server.listen(0, () => { // 0 means pick a random available port
+                console.log(`🚀 Server restarted on available port: ${server.address().port}`);
+            });
+        }, 1000);
+    } else {
+        console.error('❌ Server error:', err);
+    }
+});
+
 app.post('/cities', async (req, res) => {
     try {
         console.log("🔍 Checking User Session:", req.user); // Debugging
@@ -173,7 +180,6 @@ app.post('/cities', async (req, res) => {
     }
 });
 
-
 app.get('/cities', async (req, res) => {
   try {
     const cities = await City.find();
@@ -184,9 +190,7 @@ app.get('/cities', async (req, res) => {
   }
 });
 
-
 const OpenAI = require("openai");
-
 
 app.use(express.json());
 app.use(cors());
@@ -224,10 +228,6 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-
-app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
-
-
 app.post("/test", async (req, res) => {
     console.log(req.body); // ✅ Access `req.body` normally
     res.send("Success");
@@ -249,7 +249,6 @@ app.get("/api/weather", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch weather data" });
     }
 });
-
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -344,8 +343,6 @@ async function fetchWeather(city) {
         alert(`❌ Error: ${error.message}`);
     }
 }
-
-
 
 const saveCity = async (city) => {
     const response = await fetch("/cities", {
