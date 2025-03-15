@@ -1,19 +1,59 @@
 require('dotenv').config();
 
 const express = require('express');
-const app = express();
-const mongoose = require('mongoose');
+const mongoose = require('./db');
+const passport = require('./config/passport');
 const session = require('express-session');
-const passport = require('passport');
-const Twilio = require('twilio');
+const MongoStore = require('connect-mongo');
 const User = require('./models/User');
+
+const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ✅ Session Setup (Important for Railway)
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'super-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions'
+    }),
+    cookie: { secure: false } // Set to `true` if using HTTPS
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ✅ Fix all Async/Await Issues
+app.post('/register', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const newUser = new User({ username, password });
+        await newUser.save();
+        res.status(201).json({ message: "✅ User registered!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/login', passport.authenticate('local'), (req, res) => {
+    res.json({ message: "✅ Login successful!" });
+});
+
+// ✅ Ensure Server Works
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+const Twilio = require('twilio');
 const City = require('./models/City');  // Import Chat model
 const methodOverride = require('method-override');
 const axios = require('axios');
 const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
-const MongoStore = require('connect-mongo');
 const Chat = require("./models/Chat");
 
 const port = process.env.PORT || Math.floor(Math.random() * (50000 - 3000) + 3000);
@@ -45,21 +85,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 app.use(methodOverride('_method'));
 app.use(express.static('public'));
-
-// Express session
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URI,
-        collectionName: 'sessions'
-    })
-}));
-
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Disable favicon request
 app.get('/favicon.ico', (req, res) => res.status(204));
