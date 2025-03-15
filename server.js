@@ -185,7 +185,7 @@ app.get('/cities', async (req, res) => {
 });
 
 
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 
 
 app.use(express.json());
@@ -196,10 +196,9 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-// OpenAI API configuration
-const openai = new OpenAIApi(new Configuration({
-  apiKey: process.env.OPENAI_API_KEY
-}));
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Ensure your .env file has this key
+});
 
 app.post("/chat", async (req, res) => {
   try {
