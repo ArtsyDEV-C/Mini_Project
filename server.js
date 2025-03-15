@@ -192,14 +192,17 @@ app.use((err, req, res, next) => {
 // Handle "EADDRINUSE" error
 server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-        console.error(`❌ Port ${port} is already in use. Trying a different port...`);
+        console.error(`❌ Port ${PORT} is already in use. Trying a different port...`);
         setTimeout(() => {
             server.listen(0, () => { // 0 means pick a random available port
                 console.log(`🚀 Server restarted on available port: ${server.address().port}`);
-      {
+            });
+        }, 1000);
+    } else {
         console.error('❌ Server error:', err);
     }
 });
+
 
 app.post('/cities', async (req, res) => {
     try {
