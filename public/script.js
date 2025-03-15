@@ -226,19 +226,20 @@ function updateWeatherUI(data) {
 // Fetch weather data from API
 async function fetchWeather(city) {
     if (!city || city.trim() === "") {
-        alert("Please enter a valid city name.");
+        alert("❌ Please enter a valid city name.");
         return;
     }
 
     try {
-        const weatherData = await fetchWeatherData(city);
+        const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+        const data = await response.json();
 
-        if (!weatherData) {
+        if (!data || !data.weather || data.weather.length === 0) {
             alert("❌ Error fetching weather data.");
             return;
         }
 
-        updateWeatherUI(weatherData);
+        updateWeatherUI(data);
         fetchWeatherForecast(city); // Fetch and update the forecast
         fetchWeatherAlerts(city); // Fetch and display weather alerts
     } catch (error) {
@@ -655,4 +656,18 @@ fetch("/api", {
         recognition.start();
     });
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+    const searchButton = document.getElementById("search-button");
+    const searchBar = document.getElementById("search-input");
+
+    if (searchButton) {
+        searchButton.addEventListener("click", function () {
+            console.log("🔍 Search clicked!");  // Debugging log
+            fetchWeather(searchBar.value.trim());
+        });
+    } else {
+        console.error("❌ Search button not found!");
+    }
+});
 
