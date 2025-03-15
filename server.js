@@ -204,7 +204,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // Ensure your .env file has this key
 });
 
-app.post("/chat", async (req, res) => {  // ✅ Make the function async
+app.post("/chat", async (req, res) => {  // ✅ Ensure function is async
   try {
     const userMessage = req.body.message;
     if (!userMessage) return res.json({ response: "Please type something." });
@@ -221,34 +221,15 @@ app.post("/chat", async (req, res) => {  // ✅ Make the function async
 
     const botMessage = aiResponse.choices[0].message.content.trim();
 
-    // ✅ Ensure the function is async before using await
+    // ✅ Ensure await is inside an async function
     const chat = new Chat({ userMessage, botMessage });
-    await chat.save();  // ✅ Now this works inside an async function
+    await chat.save();  // ✅ Now it works inside an async function
 
     res.json({ response: botMessage });
 
   } catch (error) {
     console.error("AI Error:", error);
     res.json({ response: "I'm having trouble thinking right now. Try again later." });
-  }
-});
-
-
-
-if (!aiResponse || !aiResponse.choices) {
-   
-
-
-    const botMessage = aiResponse.data.choices[0].message.content.trim();
-
-    // Save chat in MongoDB
-    const chat = new Chat({ userMessage, botMessage });
-    await chat.save();
-
-    res.json({ response: botMessage });
-  } catch (error) {
-    console.error("AI Error:", error);
-    res.json({ response: "I'm having trouble thinking right now." });
   }
 });
 
