@@ -1,20 +1,33 @@
 const express = require('express');
-const connectDB = require('./db');
+const connectDB = require('./db'); // ✅ Import connectDB
 const passport = require('./config/passport');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const User = require('./models/User');
 const dotenv = require('dotenv');
+const cors = require('cors');
+const methodOverride = require('method-override');
+const path = require('path');
+const axios = require('axios');
+const User = require('./models/User');
+const City = require('./models/City');
+const Chat = require('./models/Chat');
+const sgMail = require('@sendgrid/mail');
+const Twilio = require('twilio');
 
-dotenv.config();
+dotenv.config(); // Load environment variable
 
 const app = express();
 
 // ✅ Connect to Database
 connectDB();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(cors());
+app.use(methodOverride('_method'));
+app.use(express.static('public'));
+
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'super-secret-key',
@@ -31,38 +44,56 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.post('/register', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const newUser = new User({ username, password });
-        await newUser.save();
-        res.status(201).json({ message: "✅ User registered!" });
-    } catch (error) {
-        console.error("❌ Registration error:", error);
-        res.status(500).json({ error: error.message });
-    }
-});
+// ✅ Session Setup
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'super-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions'
+    }),
+    cookie: { secure: false }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.post('/login', passport.authenticate('local'), (req, res) => {
     res.json({ message: "✅ Login successful!" });
 });
 
+app.get('/api/weather', async (req, res) => {
+    try {
+        const city = req.query.city;
+        if (!city) return res.status(400).json({ error: "City is required" });
+
+        if (!process.env.OPENWEATHER_API_KEY) {
+            return res.status(500).json({ error: "API key is missing" });
+        }
+
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
+        const response = await axios.get(url);  // ✅ Now correctly inside async function
+
+        res.json(response.data);
+    } catch (error) {
+        console.error("❌ Weather API Error:", error);
+        res.status(500).json({ error: "Failed to fetch weather data" });
+    }
+});
+
+
+
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log
 
 // Keep the server alive
 setInterval(() => {
     console.log("✅ Keeping the server alive...");
 }, 1000 * 60 * 5); // Runs every 5 minutes
 
-const Twilio = require('twilio');
-const City = require('./models/City');  // Import Chat model
-const methodOverride = require('method-override');
-const axios = require('axios');
-const cors = require('cors');
-const sgMail = require('@sendgrid/mail');
-const path = require('path');
-const Chat = require("./models/Chat");
 
 const port = process.env.PORT || Math.floor(Math.random() * (50000 - 3000) + 3000);
 
@@ -81,11 +112,6 @@ console.log("🔍 Checking MONGO_URI:", process.env.MONGO_URI);
 const mongoURI = process.env.MONGO_URI;
 if (!mongoURI) {
     console.warn("⚠️ Warning: MONGO_URI is missing. Using local fallback.");
-} else {
-    mongoose.connect(mongoURI)
-        .then(() => console.log("✅ MongoDB connected successfully"))
-        .catch(err => console.error("❌ MongoDB connection error:", err));
-}
 
 // Middleware
 app.use(express.json({ limit: "10mb" })); // Increase limit if needed
